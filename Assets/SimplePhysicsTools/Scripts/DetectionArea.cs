@@ -1,8 +1,12 @@
 ﻿using System.Collections.Generic;
-using UnityEditor;
-using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+#if UNITY_EDITOR
+
+using UnityEditor;
+using UnityEditor.IMGUI.Controls;
+
+#endif
 
 namespace SimplePhysicsTools
 {
@@ -32,12 +36,19 @@ namespace SimplePhysicsTools
     [DisallowMultipleComponent]
     public class DetectionArea : MonoBehaviour
     {
-        private static readonly Dictionary<CapsuleBoundsHandle.HeightAxis, Vector3> CapsuleAxis =
-            new Dictionary<CapsuleBoundsHandle.HeightAxis, Vector3>()
+        public enum Axis
+        {
+            X,
+            Y,
+            Z
+        }
+                
+        private static readonly Dictionary<Axis, Vector3> CapsuleAxis =
+            new Dictionary<Axis, Vector3>()
             {
-                { CapsuleBoundsHandle.HeightAxis.X, Vector3.right},
-                { CapsuleBoundsHandle.HeightAxis.Y, Vector3.up},
-                { CapsuleBoundsHandle.HeightAxis.Z, Vector3.forward }
+                { Axis.X, Vector3.right},
+                { Axis.Y, Vector3.up},
+                { Axis.Z, Vector3.forward }
             };
         
         private Transform _transform;
@@ -47,7 +58,7 @@ namespace SimplePhysicsTools
         [SerializeField] public float capsuleHeight = 1;
         [SerializeField] public Vector3 capsuleCenter;
         [SerializeField] public Vector3 sphereCenter;
-        [SerializeField] public CapsuleBoundsHandle.HeightAxis capsuleHeightAxis;
+        [SerializeField] public Axis capsuleHeightAxis;
         [SerializeField] public Bounds boxAreaBounds = new Bounds(Vector3.zero, Vector3.one);
         [SerializeField] public Color gizmosColor = Color.green;
         [SerializeField] public bool showGizmos = true;
@@ -210,7 +221,7 @@ namespace SimplePhysicsTools
             sphereBoundsHandle.radius = script.sphereAreaRadius;
             capsuleBoundsHandle.radius = script.capsuleAreaRadius;
             capsuleBoundsHandle.height = script.capsuleHeight;
-            capsuleBoundsHandle.heightAxis = script.capsuleHeightAxis;
+            capsuleBoundsHandle.heightAxis = (CapsuleBoundsHandle.HeightAxis) script.capsuleHeightAxis;
 
             EditorGUI.BeginChangeCheck();
             
@@ -259,7 +270,7 @@ namespace SimplePhysicsTools
                 script.sphereAreaRadius = sphereBoundsHandle.radius;
                 script.capsuleHeight = capsuleBoundsHandle.height;
                 script.capsuleAreaRadius = capsuleBoundsHandle.radius;
-                script.capsuleHeightAxis = capsuleBoundsHandle.heightAxis;
+                script.capsuleHeightAxis = (DetectionArea.Axis) capsuleBoundsHandle.heightAxis;
                 EditorUtility.SetDirty(target);
             }
         }
