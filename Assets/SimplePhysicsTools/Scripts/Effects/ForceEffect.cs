@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using Tools;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -71,23 +72,13 @@ namespace SimplePhysicsTools.Effects
 
         private Vector3 GetRotaryForce(Vector3 targetObjectPosition)
         {
-            if (useLocalAxis)
-            {
-                Vector3 localObjectPosition = _transform.InverseTransformPoint(targetObjectPosition);
-                Vector3 localTargetPosition = new Vector3(
-                    localObjectPosition.x * angleCosinus + localObjectPosition.z * angleSinus,
-                    0f,
-                    -localObjectPosition.x * angleSinus + localObjectPosition.z * angleCosinus
-                );
-                return rotaryForceIntensity * (_transform.TransformPoint(localTargetPosition) - targetObjectPosition);
-            }
-            Vector3 position = _transform.position;
-            Vector3 direction = targetObjectPosition - position;
-            Vector3 targetPosition = new Vector3(
-                direction.x * angleCosinus + direction.z * angleSinus + position.x,
-                targetObjectPosition.y,
-                -direction.x * angleSinus + direction.z * angleCosinus + position.z);
-            return rotaryForceIntensity * (targetPosition - targetObjectPosition);
+            Vector3 point = useLocalAxis
+                ? _transform.InverseTransformPoint(targetObjectPosition)
+                : targetObjectPosition;
+            Vector3 relativePoint = useLocalAxis ? Vector3.zero : _transform.position;
+            Vector3 targetPoint = MathTools.GetYRotatedPoint(targetObjectPosition, relativePoint
+                , angleCosinus, angleSinus);
+            return rotaryForceIntensity * (targetPoint - point);
         }
 
         #region MonoBehaviour

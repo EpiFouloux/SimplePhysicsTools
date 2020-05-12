@@ -48,7 +48,7 @@ namespace SimplePhysicsTools
         [SerializeField] public Vector3 capsuleCenter;
         [SerializeField] public Vector3 sphereCenter;
         [SerializeField] public CapsuleBoundsHandle.HeightAxis capsuleHeightAxis;
-        [SerializeField] public Bounds boxAreaBounds;
+        [SerializeField] public Bounds boxAreaBounds = new Bounds(Vector3.zero, Vector3.one);
         [SerializeField] public Color gizmosColor = Color.green;
         [SerializeField] public bool showGizmos = true;
         [SerializeField] public bool lockCenter = true;

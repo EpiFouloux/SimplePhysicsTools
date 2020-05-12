@@ -182,13 +182,9 @@ namespace SimplePhysicsTools.Effects
         {
             EditorGUILayout.LabelField("Activation Configuration", EditorStyles.boldLabel);
             hasDetectionArea = script.GetComponent<DetectionArea>();
-            if (hasDetectionArea)
+            EditorGUILayout.PropertyField(launchOnStartUp);
+            if (!hasDetectionArea)
             {
-                EditorGUILayout.PropertyField(launchOnStartUp);
-            }
-            else
-            {
-                launchOnStartUp.boolValue = false;
                 if (!applyEffectOnCollision.boolValue)
                 {
                     EditorGUILayout.HelpBox("If the effect is not applied on collision add a DetectionArea", MessageType.Error);
