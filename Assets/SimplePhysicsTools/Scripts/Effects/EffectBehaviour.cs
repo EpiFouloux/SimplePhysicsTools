@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
@@ -12,7 +13,7 @@ namespace SimplePhysicsTools.Effects
     public abstract class EffectBehaviour : MonoBehaviour
     {
         [SerializeField] protected bool applyEffectOnCollision = false;
-        [SerializeField] protected bool ignoreCaster = true;
+        [SerializeField] protected bool overrideIgnoredColliders = false;
         [SerializeField] protected bool useFixedTimeStep = true;
         [SerializeField] protected float customTimeStep = .1f;
         [SerializeField] protected bool launchOnStartUp;
@@ -29,12 +30,13 @@ namespace SimplePhysicsTools.Effects
 
         protected Transform _transform;
         protected DetectionArea detectionArea;
-        protected Collider casterCollider;
+        protected List<Collider> ignoredColliders;
 
         #region Monobehaviour
 
         protected virtual void Awake()
         {
+            ignoredColliders = new List<Collider>();
             _transform = GetComponent<Transform>();
             detectionArea = GetComponent<DetectionArea>();
         }
@@ -80,15 +82,16 @@ namespace SimplePhysicsTools.Effects
         /// <summary>
         /// Launches the effect
         /// </summary>
-        /// <param name="caster">this collider can be ignored by effects if specified in inspector</param>
-        public void Launch(Collider caster = null)
+        /// <param name="collidersToIgnore">specified colliders will ignored by effects, can be overriden</param>
+        public void Launch(ICollection<Collider> collidersToIgnore = null)
         {
             timeStepCountDown = 0f;
             if (applyOnce)
                 ApplyEffectOnTargets();
             else
                 isLaunched = true;
-            casterCollider = caster;
+            if (collidersToIgnore != null)
+                ignoredColliders.AddRange(collidersToIgnore);
             onEffectStart.Invoke();
         }
         
@@ -98,7 +101,7 @@ namespace SimplePhysicsTools.Effects
         public void Stop()
         {
             isLaunched = false;
-            casterCollider = null;
+            ignoredColliders.Clear();
             onEffectStop.Invoke();
         }
 
@@ -147,7 +150,7 @@ namespace SimplePhysicsTools.Effects
     public class EffectBehaviourEditor : Editor
     {
         protected SerializedProperty applyEffectOnCollision;
-        protected SerializedProperty ignoreCaster;
+        protected SerializedProperty overrideIgnoredColliders;
         protected SerializedProperty useFixedTimeStep;
         protected SerializedProperty customTimeStep;
         protected SerializedProperty launchOnStartUp;
@@ -162,7 +165,7 @@ namespace SimplePhysicsTools.Effects
         protected virtual void Init()
         {
             applyEffectOnCollision = serializedObject.FindProperty("applyEffectOnCollision");
-            ignoreCaster = serializedObject.FindProperty("ignoreCaster");
+            overrideIgnoredColliders = serializedObject.FindProperty("overrideIgnoredColliders");
             useFixedTimeStep = serializedObject.FindProperty("useFixedTimeStep");
             customTimeStep = serializedObject.FindProperty("customTimeStep");
             launchOnStartUp = serializedObject.FindProperty("launchOnStartUp");
@@ -198,8 +201,8 @@ namespace SimplePhysicsTools.Effects
             EditorGUILayout.PropertyField(applyEffectOnCollision);
             if (applyEffectOnCollision.boolValue && !script.GetComponent<Collider>())
                 EditorGUILayout.HelpBox("The object requires a collider", MessageType.Error);
-            EditorGUILayout.PropertyField(ignoreCaster);
-            if (hasDetectionArea)
+            EditorGUILayout.PropertyField(overrideIgnoredColliders);
+            if (!applyEffectOnCollision.boolValue && hasDetectionArea)
             {
                 EditorGUILayout.PropertyField(applyOnce);
                 if (!applyOnce.boolValue)

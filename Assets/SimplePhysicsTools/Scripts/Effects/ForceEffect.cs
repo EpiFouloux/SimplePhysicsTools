@@ -102,7 +102,7 @@ namespace SimplePhysicsTools.Effects
 
         protected override void ApplyEffect(Collider targetCollider)
         {
-            if (ignoreCaster && targetCollider == casterCollider)
+            if (!overrideIgnoredColliders && ignoredColliders.Contains(targetCollider))
                 return;
             Vector3 force = Vector3.zero;
 
@@ -263,7 +263,7 @@ namespace SimplePhysicsTools.Effects
             if (!script.drawGizmos || !script.enabled)
                 return;
             Handles.color = script.gizmosColor;
-            if (script.UseDirectionalForce)
+            if (script.UseDirectionalForce && script.DirectionalForceDirection != Vector3.zero && script.DirectionalForceIntensity > 0)
             {
                 Vector3 arrowCenter;
                 Vector3 labelPosition = script.DirectionalForceDirection.normalized * (script.DirectionalForceIntensity / 2);
