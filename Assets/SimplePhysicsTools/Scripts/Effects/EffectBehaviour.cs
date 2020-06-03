@@ -217,7 +217,7 @@ namespace SimplePhysicsTools.Effects
         protected void DrawEventsConfiguration()
         {
             EditorGUILayout.Space();
-            eventsFolded = EditorGUILayout.Foldout(eventsFolded, "Events", EditorStyles.foldoutHeader);
+            eventsFolded = EditorGUILayout.Foldout(eventsFolded, "Events", EditorStyles.foldout);
             if (eventsFolded)
             {
                 EditorGUI.indentLevel++;
