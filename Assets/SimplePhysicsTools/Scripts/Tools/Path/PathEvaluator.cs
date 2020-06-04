@@ -43,6 +43,11 @@ namespace SimplePhysicsTools.Tools.Path
             HandleDistances();
         }
 
+        public override string ToString()
+        {
+            return "{" + totalDistance.ToString("F") + ", " + points?.Count + ", " + loopingPath + "}";
+        }
+
         private void HandleDistances()
         {
             pointDistances = new Dictionary<float, Vector3>(points.Count);
@@ -50,8 +55,7 @@ namespace SimplePhysicsTools.Tools.Path
             
             foreach (Vector3 point in points)
             {
-                float newDistance = Vector3.Distance(point, previousPoint);
-                totalDistance += newDistance;
+                totalDistance += Vector3.Distance(point, previousPoint);
                 pointDistances.Add(totalDistance, point);
                 previousPoint = point;
             }
