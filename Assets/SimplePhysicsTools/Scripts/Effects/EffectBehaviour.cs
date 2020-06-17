@@ -83,7 +83,7 @@ namespace SimplePhysicsTools.Effects
         /// Launches the effect
         /// </summary>
         /// <param name="collidersToIgnore">specified colliders will ignored by effects, can be overriden</param>
-        public void Launch(ICollection<Collider> collidersToIgnore = null)
+        public void Launch(ICollection<Collider> collidersToIgnore)
         {
             timeStepCountDown = 0f;
             if (applyOnce)
@@ -93,6 +93,14 @@ namespace SimplePhysicsTools.Effects
             if (collidersToIgnore != null)
                 ignoredColliders.AddRange(collidersToIgnore);
             onEffectStart.Invoke();
+        }
+
+        /// <summary>
+        /// Launches the effect
+        /// </summary>
+        public void Launch()
+        {
+            Launch(null);
         }
         
         /// <summary>
@@ -127,6 +135,8 @@ namespace SimplePhysicsTools.Effects
             GetReady();
             if (IsLaunched && applyEffectOnCollision)
             {
+                if (!overrideIgnoredColliders && ignoredColliders.Contains(other.collider))
+                    return; 
                 ApplyEffect(other.collider);
             }
         }
@@ -136,6 +146,8 @@ namespace SimplePhysicsTools.Effects
             GetReady();
             if (IsLaunched && applyEffectOnCollision)
             {
+                if (!overrideIgnoredColliders && ignoredColliders.Contains(other))
+                    return; 
                 ApplyEffect(other);
             }
         }
