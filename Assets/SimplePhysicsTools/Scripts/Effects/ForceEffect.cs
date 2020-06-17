@@ -8,11 +8,10 @@ namespace SimplePhysicsTools.Effects
     /// <summary>
     /// This effect can apply forces to rigidbody colliders
     /// </summary>
-    public class ForceEffect : EffectBehaviour
+    public class ForceEffect : RigidBodyEffectBehaviour
     {
         // Global Force Settings
         [SerializeField] protected ForceMode forceMode = ForceMode.Impulse;
-        [SerializeField] protected bool ignoreParentRigidbody = true;
 
         // Directional Force
         [FormerlySerializedAs("knockBackForce")]
@@ -55,7 +54,6 @@ namespace SimplePhysicsTools.Effects
         public bool UseLocalAxis => useLocalAxis;
 
         protected Vector3 directionalForce;
-        protected Rigidbody parentBody;
         protected float angleCosinus;
         protected float angleSinus;
 
@@ -76,20 +74,10 @@ namespace SimplePhysicsTools.Effects
                 ? _transform.InverseTransformPoint(targetObjectPosition)
                 : targetObjectPosition;
             Vector3 relativePoint = useLocalAxis ? Vector3.zero : _transform.position;
-            Vector3 targetPoint = MathTools.GetYRotatedPoint(targetObjectPosition, relativePoint
+            Vector3 targetPoint = MathTools.GetYRotatedPoint(point, relativePoint
                 , angleCosinus, angleSinus);
             return rotaryForceIntensity * (targetPoint - point);
         }
-
-        #region MonoBehaviour
-        
-        protected override void Awake()
-        {
-            base.Awake();
-            parentBody = GetComponentInParent<Rigidbody>();
-        }
-
-        #endregion
         
         protected override void GetReady()
         {
@@ -114,10 +102,7 @@ namespace SimplePhysicsTools.Effects
                 force += GetRotaryForce(targetCollider.transform.position);
             Rigidbody targetBody = targetCollider.GetComponentInParent<Rigidbody>();
             if (!targetBody || (ignoreParentRigidbody && targetBody == parentBody))
-            {
-                //   Debug.Log(gameObject.name + " ignored this non knockbackable object: " + targetCollider.name);
                 return;
-            }
             targetBody.AddForce(force, forceMode);
             if (useTorque)
             {
@@ -133,7 +118,7 @@ namespace SimplePhysicsTools.Effects
 #if UNITY_EDITOR
     [CanEditMultipleObjects]
     [CustomEditor(typeof(ForceEffect))]
-    public class ForceEffectEditor : EffectBehaviourEditor
+    public class ForceEffectEditor : RigidBodyEffectBehaviourEditor
     {
         private SerializedProperty directionalForceIntensity;
         private SerializedProperty differentialForceIntensity;
@@ -143,7 +128,6 @@ namespace SimplePhysicsTools.Effects
         private SerializedProperty drawGizmos;
         private SerializedProperty gizmosColor;
         private SerializedProperty localDirection;
-        private SerializedProperty ignoreParentRigidbody;
         private SerializedProperty useDirectionalForce;
         private SerializedProperty useDifferentialDirection;
         private SerializedProperty useRotaryDirection;
@@ -165,7 +149,6 @@ namespace SimplePhysicsTools.Effects
             directionalForceDirection = serializedObject.FindProperty("directionalForceDirection");
             drawGizmos = serializedObject.FindProperty("drawGizmos");
             gizmosColor = serializedObject.FindProperty("gizmosColor");
-            ignoreParentRigidbody = serializedObject.FindProperty("ignoreParentRigidbody");
             localDirection = serializedObject.FindProperty("localDirection");
             useDirectionalForce = serializedObject.FindProperty("useDirectionalForce");
             useDifferentialDirection = serializedObject.FindProperty("useDifferentialDirection");
@@ -202,7 +185,6 @@ namespace SimplePhysicsTools.Effects
                 EditorGUI.indentLevel--;
             }
             DrawActivationConfiguration();
-            EditorGUILayout.PropertyField(ignoreParentRigidbody);
             if (hasDetectionArea && !applyOnce.boolValue && useFixedTimeStep.boolValue)
                 EditorGUILayout.HelpBox("You should probably not apply forces on every frame", MessageType.Warning);
             EditorGUILayout.HelpBox(

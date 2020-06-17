@@ -181,7 +181,7 @@ namespace SimplePhysicsTools.Effects
             Init();
         }
 
-        protected void DrawActivationConfiguration()
+        protected virtual void DrawActivationConfiguration()
         {
             EditorGUILayout.LabelField("Activation Configuration", EditorStyles.boldLabel);
             hasDetectionArea = script.GetComponent<DetectionArea>();
@@ -214,7 +214,7 @@ namespace SimplePhysicsTools.Effects
             }
         }
 
-        protected void DrawEventsConfiguration()
+        protected virtual void DrawEventsConfiguration()
         {
             EditorGUILayout.Space();
             eventsFolded = EditorGUILayout.Foldout(eventsFolded, "Events", EditorStyles.foldout);
@@ -227,7 +227,7 @@ namespace SimplePhysicsTools.Effects
             }
         }
 
-        protected void DrawDebug()
+        protected virtual void DrawDebug()
         {
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Debug", EditorStyles.boldLabel);
